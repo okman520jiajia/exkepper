@@ -1,27 +1,29 @@
 package com.okman.exkepper.core
 
 import Constans
+import com.okman.exkepper.model.Ticker
 import io.reactivex.Observable
-import jdk.nashorn.internal.objects.annotations.Getter
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
 
-interface API{
+interface API {
 
     @GET("/api/general/v3/time")
-    fun getServerTime():Observable<ServerTime>
+    fun getServerTime(): Observable<ServerTime>
 
-//    @GET("/api/account/v3/currencies")
-//    fun getCurrencies():Observable<String>
-//
-//    @GET("/api/futures/v3/rate")
-//    fun getRate(): Observable<String>
+    @GET("/api/futures/v3/instruments/{instrument_id}/candles")
+    fun getCandles(@Path("instrument_id") instrument_id: String
+                   , @Query("start") start: String
+                   , @Query("end") end: String
+                   , @Query("granularity") granularity: Int=180):Observable<List<List<String>>>
 
     @GET("/api/futures/v3/instruments/ticker")
-    fun getTicker():Observable<List<Ticker>>
+    fun getTicker(): Observable<List<Ticker>>
 }
 
 val retrofitBuild by lazy {
@@ -35,27 +37,24 @@ val strRetrofitBuild by lazy {
             .build()
 }
 
-val jsonRetrofitBuild by lazy {
+//val gson: Gson by lazy {
+//    GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+//            .serializeNulls()
+//            .create()
+//}
+
+val jsonRetrofitBuild: Retrofit by lazy {
     retrofitBuild.baseUrl(Constans.baseUrl)
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 }
 
-val api by lazy {
+val api: API by lazy {
     jsonRetrofitBuild.create(API::class.java)
 }
 
-data class ServerTime(val iso:String , val epoch:String)
+data class ServerTime(val iso: String, val epoch: String)
 
 
-data class Ticker(
-    val best_ask: String,//卖一价
-    val best_bid: String,//买一价
-    val high_24h: String,//24 小时最高价
-    val instrument_id: String, // 合约 ID
-    val last: String, //最新成交价
-    val low_24h: String,//24 小时最低价
-    val timestamp: String,//24 小时成交量，按张数统计
-    val volume_24h: String
-)
+
