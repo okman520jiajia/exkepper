@@ -18,8 +18,7 @@ fun List<BigDecimal>.sum() = this.fold(BigDecimal(0)) { acc, bigDecimal ->
 
 fun List<BigDecimal>.avg() = this.sum().divide(this.size.toBigDecimal(), 5, BigDecimal.ROUND_HALF_UP)
 
-fun Date.utcStr():String
-{
+fun Date.utcStr(): String {
     return utcFormat.format(this)
 }
 
