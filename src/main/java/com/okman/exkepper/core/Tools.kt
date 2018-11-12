@@ -1,15 +1,11 @@
 package com.okman.exkepper.core
 
-import sun.misc.BASE64Decoder
-import sun.misc.BASE64Encoder
 import java.math.BigDecimal
-import java.nio.charset.Charset
-import java.security.SecureRandom
+import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
 
+val SCHEME = "exkepper"
 
 fun List<BigDecimal>.sum() = this.fold(BigDecimal(0)) { acc, bigDecimal ->
     var b = acc + bigDecimal
@@ -28,37 +24,28 @@ operator fun Date.minus(i: Int): String {
     return utcFormat.format(this.time - i)
 }
 
-val KEY_STR = "myKey"
-val CHARSETNAME = "UTF-8"
-val ALGORITHM = "DES"
-val base64encoder = BASE64Encoder()
+val publicKey = "okman520jiajia"
 
-val key by lazy {
-    val generator = KeyGenerator.getInstance(ALGORITHM)
-    val secureRandom = SecureRandom.getInstance("SHA1PRNG")
-    secureRandom.setSeed(KEY_STR.toByteArray())
-    generator.init(secureRandom)
-    generator.generateKey()
+fun String.desEncrypt(key:String= publicKey):String
+{
+    return DESUtil.ENCRYPTMethod(this, key)
 }
 
-fun String.desEncrypt(): String = try {
-    val bytes = this.toByteArray(Charset.forName(CHARSETNAME))
-    val cipher = Cipher.getInstance(ALGORITHM)
-    cipher.init(Cipher.ENCRYPT_MODE, key)
-    val doFinal = cipher.doFinal(bytes)
-    base64encoder.encode(doFinal)
-} catch (ex: java.lang.Exception) {
-    ""
+fun String.desDecrypt(key:String= publicKey):String
+{
+    return DESUtil.decrypt(this,key)
+}
+
+fun String.parseUri():Map<String,String>
+{
+    val uri = URI(this)
+    val data = URLUtil.URLRequest(this)
+    data["host"] = uri.host
+    data["scheme"] = uri.scheme
+    return data
 }
 
 
-fun String.desDecrypt(): String = try {
-    val base64decoder = BASE64Decoder()
-    val bytes = base64decoder.decodeBuffer(this)
-    val cipher = Cipher.getInstance(ALGORITHM)
-    cipher.init(Cipher.DECRYPT_MODE, key)
-    val doFinal = cipher.doFinal(bytes)
-    String(doFinal, Charset.forName(CHARSETNAME))
-} catch (e: Exception) {
-    ""
+object Action{
+    const val LOGIN = "Login"
 }

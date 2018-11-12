@@ -1,25 +1,29 @@
 package com.okman.exkepper
 
+import com.okman.exkepper.core.*
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.ServerSocket
 import java.net.Socket
 
+data class ExResponse(val code : Int,val resean : String)
+
 
 fun main(args: Array<String>) {
 
-    KepperServer.startRun()
-    val reader = InputStreamReader(System.`in`)
-    while (true)
-    {
-        reader.forEachLine {
-            if(it.equals("show"))
-            {
-                println("客户数量:${KepperServer.clients.size}")
-            }
-        }
-    }
+
+//    KepperServer.startRun()
+//    val reader = InputStreamReader(System.`in`)
+//    while (true)
+//    {
+//        reader.forEachLine {
+//            if(it.equals("show"))
+//            {
+//                println("客户数量:${KepperServer.clients.size}")
+//            }
+//        }
+//    }
 }
 
 object KepperServer {
@@ -89,8 +93,20 @@ class ExClient(val socket: Socket) {
                     }
                     data.addAll(buffer.asList())
                 }
-                println("userdata : ${String(data.toByteArray())}")
+                val uri = String(data.toByteArray()).desDecrypt().parseUri()
+                if(uri["scheme"] == SCHEME)
+                {
+                    when(uri["host"])
+                    {
+                        Action.LOGIN -> {
+                            println("user login username : ${uri["username"]} pwd : ${}")
+                        }
+                    }
+                }
             }
         }
     }
 }
+
+
+
